@@ -1,0 +1,21 @@
+.add-form { display:flex; flex-direction:column; gap:8px; padding:8px 0; }
+.af__label { font-size:13px; color:#374151 }
+.af__input, .af__col-name, .af__col-type { padding:8px; border:1px solid #e6e9ef; border-radius:6px }
+.af__cols { border-top:1px dashed #eef2f6; padding-top:8px; display:flex; flex-direction:column; gap:8px }
+.af__col { display:flex; gap:8px; align-items:center }
+.af__col-name { flex:1 }
+.af__col-type { width:140px }
+.af__col-null { font-size:13px; color:#6b7280; display:flex; align-items:center; gap:6px }
+.af__col-remove { background:#fee2e2; border:1px solid #fbcaca; color:#b91c1c; padding:6px 8px; border-radius:6px; cursor:pointer }
+.af__add-col { align-self:flex-start; background:#eef2ff; border:1px solid #dbeafe; padding:6px 8px; border-radius:6px; cursor:pointer }
+.af__create { background:#2563eb; color:#fff; padding:8px 10px; border-radius:6px; border:none; cursor:pointer }
+.af__create-main { background:#2563eb; color:#fff; padding:8px 12px; border-radius:6px; border:none; cursor:pointer }
+.af__cancel { background:#f3f4f6; color:#111827; padding:8px 10px; border-radius:6px; border:1px solid #e5e7eb; margin-left:8px; cursor:pointer }
+.af__error { color:#b91c1c; font-size:13px }
+
+/* Modal */
+.af__modal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:60; }
+.af__modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.4); }
+.af__modal-content { position:relative; background:#fff; z-index:70; width:720px; max-width:95%; padding:16px; border-radius:8px; box-shadow:0 10px 30px rgba(2,6,23,0.2); display:flex; flex-direction:column; gap:12px; }
+.af__modal-header { display:flex; align-items:center; justify-content:space-between; }
+.af__modal-close { background:transparent; border:none; font-size:20px; cursor:pointer }

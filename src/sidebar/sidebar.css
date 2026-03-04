@@ -1,0 +1,9 @@
+/* локальные стили сайдбара — переопределяют App.css при необходимости */
+.sidebar { width:300px; border-right:1px solid #f1f5f9; padding-right:16px }
+.add { display:flex; gap:8px; margin-bottom:12px }
+.add__input { flex:1; padding:8px 10px; border:1px solid #e6e9ef; border-radius:6px }
+.add__btn { padding:8px 12px; background:var(--primary); color:#fff; border:none; border-radius:6px; cursor:pointer }
+.add__btn:disabled { opacity:0.6; cursor:not-allowed }
+.table-list { list-style:none; padding:0; margin:0 }
+.table-list__item { padding:8px 10px; border-radius:6px; cursor:pointer }
+.table-list__item:hover, .table-list__item:focus { background:#f1f5ff }

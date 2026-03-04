@@ -1,0 +1,12 @@
+.table-info__title { margin:0 0 12px; font-size:18px }
+.meta-table, .rows-table {
+    width:100%; border-collapse:collapse; margin-bottom:12px;
+}
+.meta-table th, .meta-table td, .rows-table th, .rows-table td {
+    border:1px solid #e6e9ef; padding:8px 10px; text-align:left; vertical-align:middle;
+}
+.meta-table th, .rows-table th { background:#f7f9fc; font-weight:600 }
+.muted { color:var(--muted) }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
+.small { font-size:13px; color:#374151 }
+.rows-table-wrap { overflow:auto; max-width:100% }
