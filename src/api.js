@@ -87,15 +87,15 @@ export async function getListReports(tableName) {
     if (!res.ok) throw new Error('Fetch err');
     return res.json();
 }
-export async function getStatusReport(tableName) {
-    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/status`);
+export async function getStatusReport(tableName, reportId) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/reports/${reportId}/status`);
     if (!res.ok) throw new Error('Fetch err');
     return res.json();
 }
 export async function getDownloadReport(tableName, reportId) {
     const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/reports/${reportId}/download`);
     if (!res.ok) throw new Error('Fetch err');
-    return res.json();
+    return res;
 }
 export async function deleteReport(tableName, reportId) {
     const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/reports/${reportId}`, { method: 'DELETE' });

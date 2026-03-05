@@ -2,19 +2,25 @@ import React, { useState } from 'react';
 import './addForm.css';
 import * as api from '../api.js'
 
-const DEFAULT_TYPES = ['integer', 'text', 'boolean', 'timestamp', 'date', 'numeric'];
+const DEFAULT_TYPES = ['integer', 'text', 'boolean', 'timestamp', 'date', 'numeric', 'string'];
+
+
 
 export default function AddFormTable({ disabled }) {
     const [open, setOpen] = useState(false);
     const [tableName, setTableName] = useState('');
-    const [cols, setCols] = useState([{ name: '', type: 'text', nullable: false }]);
+    const [cols, setCols] = useState([{ name: '', type: 'text', nullable: false, defaultValue: ''}]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const updateCol = (index, patch) =>
         setCols(prev => prev.map((c, i) => (i === index ? { ...c, ...patch } : c)));
 
-    const addCol = () => setCols(prev => [...prev, { name: '', type: 'text', nullable: false }]);
+    const addCol = () =>
+        setCols(prev => [
+            ...prev,
+            { name: '', type: 'text', nullable: false, defaultValue: '' },
+        ]);
     const removeCol = index => setCols(prev => prev.filter((_, i) => i !== index));
 
     const openModal = () => {
@@ -60,7 +66,7 @@ export default function AddFormTable({ disabled }) {
     return (
         <>
             <button
-                className="af__create-main"
+                className="btn btn-primary"
                 type="button"
                 onClick={openModal}
                 disabled={disabled}
@@ -81,7 +87,7 @@ export default function AddFormTable({ disabled }) {
                         <input
                             id="af-table-name"
                             className="af__input"
-                            placeholder="users"
+                            placeholder="table_name"
                             value={tableName}
                             onChange={e => setTableName(e.target.value)}
                             disabled={loading}
@@ -175,7 +181,7 @@ export function AddFormReport({ tableName = '', disabled = false, onCreate }){
     const openModal = () => {
         setError(null);
         setTitle('');
-        setParams([{ id: Date.now(), key: 'name', value: 'sample1' }]);
+        setParams([{ id: Date.now(), key: '', value: '' }]);
         setOpen(true);
     };
     const closeModal = () => { if (loading) return; setOpen(false); setError(null); };
@@ -234,16 +240,41 @@ export function AddFormReport({ tableName = '', disabled = false, onCreate }){
                         <label className="af__label" htmlFor="af-report-table">Таблица</label>
                         <input id="af-report-table" className="af__input" value={tableName} readOnly disabled />
 
-                        <label className="af__label" htmlFor="af-report-title">Заголовок (необязательно)</label>
+                        <label className="af__label" htmlFor="af-report-title">Название (необязательно)</label>
                         <input id="af-report-title" className="af__input" value={title} onChange={e => setTitle(e.target.value)} disabled={loading} />
 
                         <label className="af__label">Параметры</label>
                         {params.map((p, idx) => (
-                            <div key={p.id} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                                <input className="af__input" placeholder="ключ" value={p.key} onChange={e => updateParam(p.id, 'key', e.target.value)} disabled={loading} />
-                                <input className="af__input" placeholder='значение (или "a,b" / JSON)' value={p.value} onChange={e => updateParam(p.id, 'value', e.target.value)} disabled={loading} />
-                                <button type="button" onClick={() => removeParam(p.id)} disabled={loading}>–</button>
-                                {idx === params.length - 1 && <button type="button" onClick={addParam} disabled={loading}>+</button>}
+                            <div key={p.id} className="af__row">
+                                <input
+                                    className="af__input"
+                                    placeholder="ключ"
+                                    value={p.key}
+                                    onChange={e => updateParam(p.id, 'key', e.target.value)}
+                                    disabled={loading}
+                                />
+                                <input
+                                    className="af__input"
+                                    placeholder='значение (или "a,b" / JSON)'
+                                    value={p.value}
+                                    onChange={e => updateParam(p.id, 'value', e.target.value)}
+                                    disabled={loading}
+                                />
+                                {/* Кнопка «‑» всегда есть */}
+                                <button
+                                    type="button"
+                                    className="af__btn"
+                                    onClick={() => removeParam(p.id)}
+                                    disabled={loading}
+                                >–</button>
+
+                                {/* Кнопка «+» всегда рендерится, но скрыта, если это не последняя строка */}
+                                <button
+                                    type="button"
+                                    className={`af__btn ${idx === params.length - 1 ? '' : 'af__btn--hidden'}`}
+                                    onClick={addParam}
+                                    disabled={loading}
+                                >+</button>
                             </div>
                         ))}
 

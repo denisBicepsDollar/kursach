@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './tableInfo.css';
 import '../sidebars/sidebar.css';
 import * as api from '../api';
@@ -76,9 +76,10 @@ export default function TableInfo({ tableInfo }) {
     };
 
     const handleCreate = (newRow) => {
+        const serverRow = newRow && newRow.data && Array.isArray(newRow.data) ? newRow.data[0] : newRow;
         const nextId = data.length ? Math.max(...data.map(d => d._localId)) + 1 : 0;
-        const withLocal = { ...newRow, _localId: nextId };
-        setData(prev => [withLocal, ...prev].map((r, i) => ({ ...r, _localId: i })));
+        const withLocal = { ...serverRow, _localId: nextId };
+        setData(prev => [...prev, withLocal].map((r, i) => ({ ...r, _localId: i })));
     };
 
     const openEdit = (row) => {
@@ -94,10 +95,17 @@ export default function TableInfo({ tableInfo }) {
     const submitEdit = async () => {
         if (!editingRow) return;
         const { col: filterColumn, val: filterValue } = getFilterForRow(editingRow, columns);
+
+        // сформировать payload с реальными колонками
+        const payload = {};
+        for (const c of columns) {
+            const name = c.column_name;
+            if (editingData[name] !== undefined) payload[name] = editingData[name];
+        }
+
         try {
-            const res = await api.replaceRow(tableName, filterColumn, encodeURIComponent(String(filterValue)), editingData);
-            // обновляем локально: берем возвращённые данные если есть, иначе editingData
-            const updated = (res && res.data && res.data[0]) ? res.data[0] : editingData;
+            const res = await api.putreplaceRow(tableName, filterColumn, encodeURIComponent(String(filterValue)), payload);
+            const updated = (res && res.data && res.data[0]) ? res.data[0] : payload;
             setData(prev => prev.map(r => (r._localId === editingRow._localId ? { ...updated, _localId: r._localId } : r)));
             closeEdit();
         } catch (err) {
@@ -105,6 +113,82 @@ export default function TableInfo({ tableInfo }) {
             alert('Не удалось обновить строку.');
         }
     };
+    const [reports, setReports] = useState([]);
+    const [reportsLoading, setReportsLoading] = useState(false);
+    const [newReportTitle, setNewReportTitle] = useState('');
+    const [newReportParams, setNewReportParams] = useState('');
+
+    const loadReports = async () => {
+        setReportsLoading(true);
+        try {
+            const res = await api.getListReports(tableName);
+            // ожидается, что API вернёт массив; при необходимости адаптируйте
+            setReports(Array.isArray(res) ? res : (res.data || []));
+        } catch (err) {
+            console.error('Load reports failed', err);
+            alert('Не удалось загрузить отчёты.');
+        } finally {
+            setReportsLoading(false);
+        }
+    };
+
+    useEffect(() => { loadReports(); }, [tableName]);
+
+    const removeReport = async (id) => {
+        if (!window.confirm('Удалить отчёт?')) return;
+        try {
+            await api.deleteReport(tableName, id);
+            setReports(prev => prev.filter(r => r.id !== id && r.reportId !== id));
+        } catch (err) {
+            console.error('Delete report failed', err);
+            alert('Не удалось удалить отчёт.');
+        }
+    };
+
+    const checkStatus = async (reportId) => {
+        try {
+            const s = await api.getStatusReport(tableName, reportId); // если API принимает report id, измените вызов
+            alert(JSON.stringify(s));
+        } catch (err) {
+            console.error('Status failed', err);
+            alert('Не удалось получить статус.');
+        }
+    };
+
+    const downloadReport = async (id) => {
+        try {
+            const res = await api.getDownloadReport(tableName, id);
+            // если сервер вернул JSON с url
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                const j = await res.json();
+                if (j.url) { window.open(j.url, '_blank'); return; }
+                alert('Ответ JSON: ' + JSON.stringify(j));
+                return;
+            }
+            // иначе считаем ответ бинарным файлом
+            const blob = await res.blob();
+            const filename = (() => {
+                const cd = res.headers.get('content-disposition') || '';
+                const m = /filename\*=UTF-8''([^;]+)/.exec(cd) || /filename="([^"]+)"/.exec(cd);
+                return (m && decodeURIComponent(m[1])) || `${tableName}-${id}`;
+            })();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Download failed', err);
+            alert('Не удалось скачать отчёт: ' + (err.message || err));
+        }
+    };
+
+
+
 
     return (
         <div className="table-info">
@@ -169,11 +253,19 @@ export default function TableInfo({ tableInfo }) {
                                     <tr key={localId}>
                                         {columns.map(col => (
                                             <td key={col.column_name} className={col.data_type.includes('timestamp') ? 'mono small' : 'mono'}>
-                                                {formatVal(row[col.column_name])}
+                                                <div className="cell-content">
+                                                    {formatVal(row[col.column_name])}
+                                                </div>
                                             </td>
                                         ))}
                                         <td>
-                                            <button type="button" onClick={() => openEdit(row)}>Заменить</button>
+                                            <button
+                                                type="button"
+                                                onClick={() => openEdit(row)}
+                                                className="btn btn-warning"
+                                            >
+                                                Заменить
+                                            </button>
                                             <button
                                                 type="button"
                                                 onClick={() => handleDelete(localId)}
@@ -187,13 +279,108 @@ export default function TableInfo({ tableInfo }) {
                             })}
                             </tbody>
                         </table>
+                        <form.AddFormRow
+                            tableName={tableName}
+                            cols={columns.map(c => ({
+                                name: c.column_name,
+                                type: c.data_type,
+                                nullable: c.is_nullable === 'YES',
+                                default: c.column_default ?? ''
+                            }))}
+                            onCreate={handleCreate}
+                        />
                     </div>
                 )}
             </div>
 
+            <div className="table-info__reports">
+                <h3>Отчёты</h3>
+
+                {reportsLoading ? (
+                    <div>Загрузка...</div>
+                ) : (
+                    <table className="rows-table">
+                        <thead>
+                        <tr>
+                            <th>id</th>
+                            <th>Заголовок</th>
+                            <th>Статус</th>
+                            <th>Создан</th>
+                            <th>Действия</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {reports.length === 0 ? (
+                            <tr>
+                                <td colSpan={5}>Нет отчётов</td>
+                            </tr>
+                        ) : (
+                            reports.map(r => (
+                                <tr key={r.id ?? r.reportId}>
+                                    {/* Изменение 1: оборачиваем id */}
+                                    <td className="mono">
+                                        <div className="cell-content">
+                                            {r.id ?? r.reportId}
+                                        </div>
+                                    </td>
+
+                                    {/* Изменение 2: оборачиваем заголовок */}
+                                    <td>
+                                        <div className="cell-content">
+                                            {r.title ?? r.name ?? '—'}
+                                        </div>
+                                    </td>
+
+                                    {/* Изменение 3: оборачиваем статус */}
+                                    <td>
+                                        <div className="cell-content">
+                                            {r.status ?? r.state ?? '—'}
+                                        </div>
+                                    </td>
+
+                                    {/* Изменение 4: оборачиваем дату (самая частая проблема с длинными ISO-строками) */}
+                                    <td className="mono">
+                                        <div className="cell-content">
+                                            {r.createdAt ?? r.created_at ?? r.created ?? '—'}
+                                        </div>
+                                    </td>
+
+                                    <td className="row-actions">
+                                        <button
+                                            type="button"
+                                            className="btn btn-accent btn-sm"
+                                            onClick={() => downloadReport(r.id ?? r.reportId)}
+                                        >
+                                            Скачать
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline btn-sm"
+                                            onClick={() => checkStatus(r.id ?? r.reportId)}
+                                        >
+                                            Статус
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => removeReport(r.id ?? r.reportId)}
+                                        >
+                                            Удалить
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+
+
+
             {editingRow && (
-                <div className="modal-overlay" style={modalOverlayStyle}>
-                    <div className="modal" style={modalStyle}>
+                <div className="modal-overlay">
+                    <div className="modal">
                         <h4>Редактировать строку</h4>
                         <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
                             {columns.map(col => {
@@ -211,8 +398,8 @@ export default function TableInfo({ tableInfo }) {
                             })}
                         </div>
                         <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button type="button" onClick={closeEdit}>Отмена</button>
-                            <button type="button" onClick={submitEdit}>Сохранить</button>
+                            <button type="button" className="btn btn-danger btn-sm" onClick={closeEdit}>Отмена</button>
+                            <button type="button" className="btn btn-accent btn-sm" onClick={submitEdit}>Сохранить</button>
                         </div>
                     </div>
                 </div>
@@ -220,12 +407,3 @@ export default function TableInfo({ tableInfo }) {
         </div>
     );
 }
-
-// простые inline стили для модалки (можно вынести в CSS)
-const modalOverlayStyle = {
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
-};
-const modalStyle = {
-    background: '#fff', padding: 16, borderRadius: 6, width: '600px', maxWidth: '95%'
-};

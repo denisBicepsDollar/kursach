@@ -26,16 +26,13 @@ export default function SidebarTable({ tableName}) {
 
     return (
         <aside className="sidebar">
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                <div>
-                    <AddFormReport tableName={tableName}/>
-                </div>
+            <div className="table-actions">
+                <AddFormReport tableName={tableName} />
                 <button
                     type="button"
                     onClick={handleDeleteTable}
-                    className="danger"
+                    className="btn btn-danger"
                     disabled={loading || !tableName}
-                    style={{ marginLeft: 8 }}
                 >
                     {loading ? 'Удаление...' : 'Удалить таблицу'}
                 </button>

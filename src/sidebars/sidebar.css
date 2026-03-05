@@ -1,9 +1,25 @@
-/* локальные стили сайдбара — переопределяют App.css при необходимости */
-.sidebar { width:300px; border-right:1px solid #f1f5f9; padding-right:16px }
-.add { display:flex; gap:8px; margin-bottom:12px }
-.add__input { flex:1; padding:8px 10px; border:1px solid #e6e9ef; border-radius:6px }
-.add__btn { padding:8px 12px; background:var(--primary); color:#fff; border:none; border-radius:6px; cursor:pointer }
-.add__btn:disabled { opacity:0.6; cursor:not-allowed }
-.table-list { list-style:none; padding:0; margin:0 }
-.table-list__item { padding:8px 10px; border-radius:6px; cursor:pointer }
-.table-list__item:hover, .table-list__item:focus { background:#f1f5ff }
+/* sidebar.css — улучшенная версия */
+
+.sidebar {
+    width: 300px;
+    background: white;
+    border-right: 1px solid #e2e8f0;
+    padding: 24px 20px;
+    overflow-y: auto;
+}
+
+.table-list__item {
+    padding: 10px 14px;
+    margin: 4px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #1e293b;
+    transition: all 0.15s ease;
+}
+
+.table-list__item:hover,
+.table-list__item.active {
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 500;
+}

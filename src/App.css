@@ -1,10 +1,77 @@
-/* мелкие локальные правки (можно объединить с index.css) */
-.sidebar { width:300px; border-right:1px solid #f1f5f9; padding-right:16px }
-.add { display:flex; gap:8px; margin-bottom:12px }
-.add__input { flex:1; padding:8px 10px; border:1px solid #e6e9ef; border-radius:6px }
-.add__btn { padding:8px 12px; background:var(--primary); color:#fff; border:none; border-radius:6px; cursor:pointer }
-.add__btn:disabled { opacity:0.6; cursor:not-allowed }
+/* App.css — основная структура приложения */
 
-.table-list { list-style:none; padding:0; margin:0 }
-.table-list__item { padding:8px 10px; border-radius:6px; cursor:pointer }
-.table-list__item:hover, .table-list__item:focus { background:#f1f5ff }
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--gray-50);
+}
+
+.app__header {
+    padding: 1.25rem 2rem;
+    background: white;
+    border-bottom: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.app__header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.app__main {
+    display: flex;
+    flex: 1 1 auto;
+}
+
+/* Основная область контента */
+.content {
+    flex: 1 1 auto;
+    padding: 2rem;
+    background: white;
+    min-width: 0; /* важно для overflow в таблицах */
+}
+
+/* Состояния загрузки / пустоты */
+.muted {
+    color: var(--gray-500);
+    font-style: italic;
+}
+
+.error {
+    color: var(--danger);
+    background: #fee2e2;
+    padding: 1rem;
+    border-radius: var(--radius);
+    margin: 1rem 0;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .app__main {
+        flex-direction: column;
+    }
+
+    .content {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .app__header {
+        padding: 1rem;
+    }
+
+    .app__header h1 {
+        font-size: 1.5rem;
+    }
+
+    .content {
+        padding: 1rem;
+    }
+}
