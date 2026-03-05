@@ -1,11 +1,15 @@
 const BASE = 'http://localhost:3000';
-
+//Tables
 export async function getListTables() {
     const res = await fetch(`${BASE}/tables`);
     if (!res.ok) throw new Error('Fetch err');
     return res.json();
 }
-
+export async function deleteTable(tableName) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Fetch err');
+    return res.json();
+}
 export async function postCreateTable({ tableName, columns }, { base = BASE } = {}) {
     const body = { params: { tableName, columns } };
 
@@ -27,7 +31,6 @@ export async function postCreateTable({ tableName, columns }, { base = BASE } = 
         throw err;
     }
 
-    // ожидаем { data: table }
     return json;
 }
 export async function getTable(tableName) {
@@ -35,16 +38,58 @@ export async function getTable(tableName) {
     if (!res.ok) throw new Error('Fetch err');
     return res.json();
 }
-
+//Rows
 export async function getListRows(tableName) {
     const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/rows`);
     if (!res.ok) throw new Error('Fetch err');
     return res.json();
 }
-
-export async function postCreateReport(tableName) {
-    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/report`, { method: 'POST' });
+export async function postCreateRow(tableName) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/rows`);
     if (!res.ok) throw new Error('Fetch err');
-    // ожидаем { url: '...' } или файл; адаптируй под бэк
+    return res.json();
+}
+export async function putReplaceRow(tableName, rowId) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/rows/${rowId}`);
+    if (!res.ok) throw new Error('Fetch err');
+    return res.json();
+}
+export async function deleteRow(tableName, rowId) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/rows/${rowId}`);
+    if (!res.ok) throw new Error('Fetch err');
+    return res.json();
+}
+
+//Reports
+export async function postCreateReport(tableName, { title = null, params = null } = {}) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/reports`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, params })
+    });
+    if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'Fetch error');
+    }
+    return res.json();
+}
+export async function getListReports(tableName) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/reports`);
+    if (!res.ok) throw new Error('Fetch err');
+    return res.json();
+}
+export async function getStatusReport(tableName) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/status`);
+    if (!res.ok) throw new Error('Fetch err');
+    return res.json();
+}
+export async function getDownloadReport(tableName, reportId) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/reports/${reportId}/download`);
+    if (!res.ok) throw new Error('Fetch err');
+    return res.json();
+}
+export async function deleteReport(tableName, reportId) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/reports/${reportId}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Fetch err');
     return res.json();
 }

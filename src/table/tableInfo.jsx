@@ -1,10 +1,17 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './tableInfo.css';
+import '../sidebars/sidebar.css'
+import * as api from '../api.js';
+import { AddFormReport } from '../addForm/addForm.jsx'; // default export компонента формы отчёта
 
 export default function TableInfo({ tableInfo }) {
-    if (!tableInfo || !tableInfo.data) return null;
-
-    const { columns = [], data = [] } = tableInfo.data;
+    const columns = tableInfo?.rows?.data?.columns || tableInfo?.rows?.columns || [];
+    const initialData = Array.isArray(tableInfo?.rows?.data?.data)
+        ? tableInfo.rows.data.data
+        : (Array.isArray(tableInfo?.rows?.data) ? tableInfo.rows.data : []);
+    const tableName = tableInfo.tableName || tableInfo.name;
+    const [data] = useState(initialData);
+    const [loading, setLoading] = useState(false);
 
     const formatVal = val => {
         if (val === null || val === undefined) return 'NULL';
@@ -15,11 +22,32 @@ export default function TableInfo({ tableInfo }) {
         return String(val);
     };
 
+
+    const handleDeleteTable = async () => {
+        if (!confirm(`Удалить таблицу "${tableName}" ?`)) return;
+        try {
+            setLoading(true);
+            await api.deleteTable(tableName);
+            alert (`Таблица удалена`);
+            window.location.href = '/tables';
+        }   catch (e) {
+            alert (e.message || String (e))
+        }   finally {setLoading(false);}
+    };
+
     return (
         <div className="table-info">
+            <div className="table-info\_\_meta">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3>Колонки</h3>
+                    <div>
+                        <AddFormReport tableName={tableName} disabled={loading} />
+                        <button type="button" onClick={handleDeleteTable} className="danger" disabled={loading} style={{ marginLeft: 8 }}>
+                            Удалить таблицу
+                        </button>
+                    </div>
+                </div>
 
-            <div className="table-info__meta">
-                <h3>Колонки</h3>
                 <table className="meta-table">
                     <thead>
                     <tr>
@@ -42,7 +70,7 @@ export default function TableInfo({ tableInfo }) {
                 </table>
             </div>
 
-            <div className="table-info__rows">
+            <div className="table-info\_\_rows">
                 <h3>Данные</h3>
                 {data.length === 0 ? (
                     <p className="muted">Нет строк.</p>

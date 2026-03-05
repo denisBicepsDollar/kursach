@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import * as api from './api.js'
 import './App.css';
-import Sidebar from './sidebar/sidebar';
+import Sidebar from './sidebars/sidebar';
 import TableInfo from './table/tableInfo';
+
 
 
 export default function App() {
@@ -10,7 +11,6 @@ export default function App() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [tableInfo, setTableInfo] = useState(null);
-    const [tableData, setTableData] = useState(null);
     const [infoLoading, setInfoLoading] = useState(false);
 
     useEffect(() => {
@@ -32,34 +32,16 @@ export default function App() {
 
     async function onClickTable(name) {
         setTableInfo(null);
-        setTableData(null);
         setInfoLoading(true);
         setError(null);
         try {
-            const info = await api.getTable(name);
-            setTableInfo(info);
-            const data = await api.getListRows(name);
-            setTableData(data);
+            const rows = await api.getTable(name);
+            const tableReports = await api.getListReports(name);
+            setTableInfo({ name, rows, tableReports} );
         } catch (e) {
             setError(e.message);
         } finally {
             setInfoLoading(false);
-        }
-    }
-
-    async function onGenerateReport(name) {
-        try {
-            const res = await api.generateReport(name);
-            // ожидаем { url }
-            if (res?.url) window.open(res.url, '_blank');
-            else {
-                // если пришёл файл blob
-                const blob = await res.blob();
-                const url = URL.createObjectURL(blob);
-                window.open(url, '_blank');
-            }
-        } catch (e) {
-            setError(e.message || 'Ошибка генерации отчёта');
         }
     }
 
@@ -74,7 +56,7 @@ export default function App() {
                     {!infoLoading && tableInfo && (
                         <div className="info">
                             <h2>Информация о таблице</h2>
-                            <TableInfo tableInfo={tableInfo} tableData={tableData} onGenerateReport={() => onGenerateReport(tableInfo?.data?.table_name ?? tableInfo?.data?.name)} />
+                            <TableInfo tableInfo={tableInfo}/>
                         </div>
                     )}
                     {!infoLoading && !tableInfo && <p className="muted">Выберите таблицу слева</p>}

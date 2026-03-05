@@ -4,7 +4,7 @@ import * as api from '../api.js'
 
 const DEFAULT_TYPES = ['integer', 'text', 'boolean', 'timestamp', 'date', 'numeric'];
 
-export default function AddForm({ disabled }) {
+export default function AddFormTable({ disabled }) {
     const [open, setOpen] = useState(false);
     const [tableName, setTableName] = useState('');
     const [cols, setCols] = useState([{ name: '', type: 'text', nullable: false }]);
@@ -157,6 +157,102 @@ export default function AddForm({ disabled }) {
                         </div>
                     </div>
 
+                    <div className="af__modal-backdrop" onClick={closeModal} />
+                </div>
+            )}
+        </>
+    );
+}
+
+export function AddFormReport({ tableName = '', disabled = false, onCreate }){
+    const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [title, setTitle] = useState('');
+    const [params, setParams] = useState('{' +
+        '}');
+    const [error, setError] = useState(null);
+
+    const openModal = () => {
+        setError(null);
+        setTitle('');
+        setParams([{ id: Date.now(), key: 'name', value: 'sample1' }]);
+        setOpen(true);
+    };
+    const closeModal = () => { if (loading) return; setOpen(false); setError(null); };
+
+    const addParam = () => setParams(p => [...p, { id: Date.now(), key: '', value: '' }]);
+    const removeParam = (id) => setParams(p => p.filter(x => x.id !== id));
+    const updateParam = (id, field, val) => setParams(p => p.map(x => x.id === id ? { ...x, [field]: val } : x));
+
+    const buildParamsObject = () => {
+        const out = {};
+        for (const { key, value } of params) {
+            if (!key || !key.trim()) continue;
+            const v = value.trim();
+            // detect simple array syntax like "a,b,c" or JSON arrays
+            if ((v.startsWith('[') && v.endsWith(']')) || (v.startsWith('{') && v.endsWith('}'))) {
+                try { out[key] = JSON.parse(v); continue; } catch {}
+            }
+            if (v.includes(',')) out[key] = v.split(',').map(s => s.trim());
+            else out[key] = v;
+        }
+        return out;
+    };
+
+    const submit = async () => {
+        setError(null);
+        if (!tableName || !tableName.trim()) { setError('Требуется имя таблицы'); return; }
+
+        const paramsObj = buildParamsObject();
+        const payload = { title: title || null, params: Object.keys(paramsObj).length ? paramsObj : null };
+        setLoading(true);
+        try {
+            const res = await api.postCreateReport(tableName, payload);
+            if (onCreate) onCreate(res);
+            alert(`Отчет создан: ${res?.id ?? JSON.stringify(res)}`);
+            setOpen(false);
+        } catch (e) {
+            setError(e?.message || String(e));
+        } finally { setLoading(false); }
+    };
+
+    return (
+        <>
+            <button type="button" onClick={openModal} disabled={disabled || !tableName} className="af__create-report">
+                Создать отчёт
+            </button>
+
+            {open && (
+                <div className="af__modal" role="dialog" aria-modal="true" aria-label="Создать отчёт">
+                    <div className="af__modal-content">
+                        <div className="af__modal-header">
+                            <h3>Новый отчёт</h3>
+                            <button className="af__modal-close" onClick={closeModal} aria-label="Закрыть" disabled={loading}>×</button>
+                        </div>
+
+                        <label className="af__label" htmlFor="af-report-table">Таблица</label>
+                        <input id="af-report-table" className="af__input" value={tableName} readOnly disabled />
+
+                        <label className="af__label" htmlFor="af-report-title">Заголовок (необязательно)</label>
+                        <input id="af-report-title" className="af__input" value={title} onChange={e => setTitle(e.target.value)} disabled={loading} />
+
+                        <label className="af__label">Параметры</label>
+                        {params.map((p, idx) => (
+                            <div key={p.id} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                                <input className="af__input" placeholder="ключ" value={p.key} onChange={e => updateParam(p.id, 'key', e.target.value)} disabled={loading} />
+                                <input className="af__input" placeholder='значение (или "a,b" / JSON)' value={p.value} onChange={e => updateParam(p.id, 'value', e.target.value)} disabled={loading} />
+                                <button type="button" onClick={() => removeParam(p.id)} disabled={loading}>–</button>
+                                {idx === params.length - 1 && <button type="button" onClick={addParam} disabled={loading}>+</button>}
+                            </div>
+                        ))}
+
+                        {error && <div className="af__error" role="alert">{error}</div>}
+
+                        <div className="af__actions">
+                            <button className="af__create" type="button" onClick={submit} disabled={loading}>{loading ? 'Создаю...' : 'Создать'}</button>
+                            <button className="af__cancel" type="button" onClick={closeModal} disabled={loading}>Отмена</button>
+                        </div>
+                    </div>
                     <div className="af__modal-backdrop" onClick={closeModal} />
                 </div>
             )}

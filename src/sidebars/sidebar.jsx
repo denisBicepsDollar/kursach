@@ -1,11 +1,11 @@
 import React from 'react';
-import AddForm from '../addForm/addForm.jsx';
+import AddFormTable from '../addForm/addForm.jsx';
 import './sidebar.css';
 
 export default function Sidebar({ items, loading, error, onCreate, onClickTable }) {
     return (
         <aside className="sidebar">
-            <AddForm onCreate={onCreate} />
+            <AddFormTable onCreate={onCreate} />
             {loading && <p className="muted">Загрузка...</p>}
             {error && <p className="error">{error}</p>}
             {!loading && !error && (
