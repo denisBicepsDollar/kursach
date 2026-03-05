@@ -10,3 +10,13 @@
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
 .small { font-size:13px; color:#374151 }
 .rows-table-wrap { overflow:auto; max-width:100% }
+.rows-table button.btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.rows-table button.btn-danger {
+    background: #e53e3e;
+    color: #fff;
+    border: none;
+}

@@ -34,7 +34,7 @@ export async function postCreateTable({ tableName, columns }, { base = BASE } = 
     return json;
 }
 export async function getTable(tableName) {
-    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}`);
+    const res = await fetch(`${BASE}/tables/${tableName}`);
     if (!res.ok) throw new Error('Fetch err');
     return res.json();
 }
@@ -44,20 +44,29 @@ export async function getListRows(tableName) {
     if (!res.ok) throw new Error('Fetch err');
     return res.json();
 }
-export async function postCreateRow(tableName) {
-    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/rows`);
-    if (!res.ok) throw new Error('Fetch err');
+export async function postCreateRow(tableName, payload) {
+    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/rows`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const text = await res.text().catch(()=>null);
+        throw new Error(text || `HTTP ${res.status}`);
+    }
     return res.json();
 }
-export async function putReplaceRow(tableName, rowId) {
-    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/rows/${rowId}`);
-    if (!res.ok) throw new Error('Fetch err');
-    return res.json();
+
+export async function deleteRow(tableName, filterColumn, filterValue) {
+    return fetch(`${BASE}/tables/${tableName}/rows/${filterColumn}/${filterValue}`, { method: 'DELETE' })
+        .then(r => r.json());
 }
-export async function deleteRow(tableName, rowId) {
-    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/rows/${rowId}`);
-    if (!res.ok) throw new Error('Fetch err');
-    return res.json();
+export async function putreplaceRow(tableName, filterColumn, filterValue, data) {
+    return fetch(`${BASE}/tables/${tableName}/rows/${filterColumn}/${filterValue}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    }).then(r => r.json());
 }
 
 //Reports
