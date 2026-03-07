@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { AddFormReport } from '../addForm/addForm.jsx';
+import { AddFormReport } from '../addForm/addFormReport.jsx';
 import * as api from '../api.js';
-import './sidebar.css';
+import '../index.css';
 
-export default function SidebarTable({ tableName}) {
+export default function SidebarTable({ tableName, onActionComplete}) {
     const [loading, setLoading] = useState(false);
 
     const handleDeleteTable = async () => {
@@ -27,11 +27,11 @@ export default function SidebarTable({ tableName}) {
     return (
         <aside className="sidebar">
             <div className="table-actions">
-                <AddFormReport tableName={tableName} />
+                <AddFormReport tableName={tableName} onCreate={onActionComplete} />
                 <button
                     type="button"
                     onClick={handleDeleteTable}
-                    className="btn btn-danger"
+                    className="btn-danger"
                     disabled={loading || !tableName}
                 >
                     {loading ? 'Удаление...' : 'Удалить таблицу'}

@@ -1,7 +1,0 @@
-/* sideBarTable.css — дополнение */
-
-.table-list__item.active {
-    background: #eff6ff;
-    color: var(--accent);
-    font-weight: 600;
-}

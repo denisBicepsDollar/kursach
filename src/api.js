@@ -33,6 +33,7 @@ export async function postCreateTable({ tableName, columns }, { base = BASE } = 
 
     return json;
 }
+
 export async function getTable(tableName) {
     const res = await fetch(`${BASE}/tables/${tableName}`);
     if (!res.ok) throw new Error('Fetch err');
@@ -70,17 +71,21 @@ export async function putreplaceRow(tableName, filterColumn, filterValue, data) 
 }
 
 //Reports
-export async function postCreateReport(tableName, { title = null, params = null } = {}) {
-    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/reports`, {
+export async function postCreateReport(tableName, payload = {}) {
+    const url = `${BASE}/tables/${encodeURIComponent(tableName)}/reports`;
+
+    const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, params })
+        body: JSON.stringify(payload)
     });
-    if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || 'Fetch error');
+
+    if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(errText || 'Network error');
     }
-    return res.json();
+
+    return response.json();
 }
 export async function getListReports(tableName) {
     const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/reports`);

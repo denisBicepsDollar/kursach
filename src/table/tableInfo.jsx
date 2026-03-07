@@ -1,9 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import './tableInfo.css';
-import '../sidebars/sidebar.css';
+import '../index.css';
 import * as api from '../api';
 import SidebarTable from "../sidebars/sideBarTable.jsx";
-import * as form from "../addForm/addForm.jsx";
+import * as form from "../addForm/addFormRow.jsx";
 
 export default function TableInfo({ tableInfo }) {
     const columns = tableInfo?.rows?.data?.columns || tableInfo?.rows?.columns || [];
@@ -115,8 +114,7 @@ export default function TableInfo({ tableInfo }) {
     };
     const [reports, setReports] = useState([]);
     const [reportsLoading, setReportsLoading] = useState(false);
-    const [newReportTitle, setNewReportTitle] = useState('');
-    const [newReportParams, setNewReportParams] = useState('');
+
 
     const loadReports = async () => {
         setReportsLoading(true);
@@ -193,11 +191,26 @@ export default function TableInfo({ tableInfo }) {
     return (
         <div className="table-info">
             <div className="table-info__meta">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3>Колонки</h3>
-                    <div>
-                        <SidebarTable tableName={tableName} disabled={loading} onClickTable={() => { }} />
-                    </div>
+                <div className="table-header">
+                    <h3 className="table-header__title">{tableName}</h3>
+                </div>
+                <div className="table-header">
+                    <h3 className="table-header__subtitle">Колонки</h3>
+                        <div>
+                            <SidebarTable
+                                tableName={tableName}
+                                disabled={loading}
+                                onClickTable={() => { }}
+                                onActionComplete={async () => {
+                                    setReportsLoading(true);
+                                try {
+                                    await loadReports(tableName);
+                                } finally {
+                                    setReportsLoading(false);
+                                }
+                              }}
+                            />
+                        </div>
                 </div>
 
                 <table className="meta-table">
@@ -223,7 +236,7 @@ export default function TableInfo({ tableInfo }) {
             </div>
 
             <div className="table-info__rows">
-                <h3>Данные</h3>
+                <h3 className="table-header__subtitle__sub">Данные</h3>
                 {data.length === 0 ? (
                     <form.AddFormRow
                         tableName={tableName}
@@ -294,7 +307,7 @@ export default function TableInfo({ tableInfo }) {
             </div>
 
             <div className="table-info__reports">
-                <h3>Отчёты</h3>
+                <h3 className="table-header__subtitle__sub">Отчёты</h3>
 
                 {reportsLoading ? (
                     <div>Загрузка...</div>
@@ -348,7 +361,7 @@ export default function TableInfo({ tableInfo }) {
                                     <td className="row-actions">
                                         <button
                                             type="button"
-                                            className="btn btn-accent btn-sm"
+                                            className="btn-accent2"
                                             onClick={() => downloadReport(r.id ?? r.reportId)}
                                         >
                                             Скачать
@@ -382,14 +395,14 @@ export default function TableInfo({ tableInfo }) {
                 <div className="modal-overlay">
                     <div className="modal">
                         <h4>Редактировать строку</h4>
-                        <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
+                        <div>
                             {columns.map(col => {
                                 const name = col.column_name;
                                 return (
-                                    <div key={name} style={{ marginBottom: 8 }}>
-                                        <label style={{ display: 'block', fontSize: 12 }}>{name}</label>
+                                    <div key={name} style={{ marginBottom: 12 }}>
+                                        <label className="label">{name}</label>
                                         <input
-                                            style={{ width: '100%' }}
+                                            className="pole-put"
                                             value={editingData[name] ?? ''}
                                             onChange={e => setEditingData(prev => ({ ...prev, [name]: e.target.value }))}
                                         />

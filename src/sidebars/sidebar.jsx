@@ -1,18 +1,23 @@
 import React from 'react';
-import AddFormTable from '../addForm/addForm.jsx';
-import './sidebar.css';
+import AddFormTable from '../addForm/addFormTable.jsx';
+import '../index.css';
 
-export default function Sidebar({ items, loading, error, onCreate, onClickTable }) {
+export default function Sidebar({ items, loading, error,onClickTable }) {
     return (
-        <aside className="sidebar">
-            <AddFormTable onCreate={onCreate} />
+        <aside className="body">
+            <AddFormTable/>
             {loading && <p className="muted">Загрузка...</p>}
             {error && <p className="error">{error}</p>}
             {!loading && !error && (
-                <ul className="table-list">
+                <ul className="body-list-content">
                     {items.length === 0 ? <li className="muted">Таблицы не найдены.</li> :
-                        items.map(name => (
-                            <li key={name} className="table-list__item" onClick={() => onClickTable(name)} role="button" tabIndex={0}>{name}</li>
+                        items.map(tableName=> (
+                            <li key={tableName}> <button
+                                className="btn-outline"
+                                onClick={() => onClickTable(tableName)}>
+                                {tableName}
+                            </button>
+                            </li>
                         ))
                     }
                 </ul>
