@@ -25,8 +25,7 @@ export default function SidebarTable({ tableName, onActionComplete}) {
     };
 
     return (
-        <aside className="sidebar">
-            <div className="table-actions">
+            <div className="body-content" style={{ padding: '0px' }}>
                 <AddFormReport tableName={tableName} onCreate={onActionComplete} />
                 <button
                     type="button"
@@ -37,6 +36,5 @@ export default function SidebarTable({ tableName, onActionComplete}) {
                     {loading ? 'Удаление...' : 'Удалить таблицу'}
                 </button>
             </div>
-        </aside>
     );
 }

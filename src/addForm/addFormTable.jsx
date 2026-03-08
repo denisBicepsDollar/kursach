@@ -70,6 +70,7 @@ export default function AddFormTable({ disabled }) {
         <>
             <button
                 className="btn-accent"
+                style={{width : '88%', marginLeft : '17px', marginTop : '20px'}}
                 type="button"
                 onClick={openModal}
                 disabled={disabled}

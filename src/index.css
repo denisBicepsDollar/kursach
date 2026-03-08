@@ -43,10 +43,6 @@
   --af-gray-300:      #d1d5db;
   --af-gray-400:      #9ca3af;
   --af-gray-500:      #6b7280;
-  --af-gray-600:      #4b5563;
-  --af-gray-700:      #374151;
-  --af-gray-800:      #1f2937;
-  --af-gray-900:      #111827;
 
   --af-overlay:       rgba(0, 0, 0, 0.5);
   --af-shadow:        0 1px 3px rgba(0, 0, 0, 0.1);
@@ -63,14 +59,6 @@
   display: grid;
   grid-template-columns: 250px 1fr;
   gap: 0;
-}
-
-/* ХЕДЕР */
-.header {
-  background-color: var(--af-surface);
-  border-bottom: 1px solid var(--af-border);
-  padding: 16px 24px;
-  grid-column: 1;
 }
 
 .header h1 {
@@ -134,24 +122,22 @@
   font-family: var(--af-font2); font-size: var(--af-font-size-header);
   color: var(--af-text); letter-spacing: .02em;
 }
-.header-table {
-  font-family: var(--af-font); font-size: 18px;
-  color: var(--af-accent); background: rgba(79,140,255,.12);
-  border: 1px solid rgba(79,140,255,.2);
-  border-radius: 4px; padding: 2px 8px;
-}
+
 /*-----------------Тело----------------*/
 
 .body {
-  border: 1px solid var(--af-border2);
+  border: 1px solid var(--af-border);
+  background-color: var(--af-bg);
   border-radius: var(--af-r);
   overflow: hidden;
+
 }
 .body-list-content {
   padding: 12px 14px;
-  border-top: 1px solid var(--af-border2);
+  border-top: 1px solid var(--af-border);
+  border-bottom: 1px solid var(--af-border);
   display: flex; flex-direction: column; gap: 8px;
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--af-gray-50);
   list-style: none;
 }
 
@@ -161,7 +147,26 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.body-content {
 
+  font-family: var(--af-font);
+  font-size: 18px;
+  color: var(--af-text);
+  border: 1px solid var(--af-gray-300);
+  border-radius: 4px;
+  padding: 12px 16px;
+  background: var(--af-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.body-content-title {
+  background: linear-gradient(180deg, var(--af-surface) 80%, var(--af-gray-200) 100%);
+  border-bottom: 1px solid var(--af-border2);
+  padding: 10px 14px;
+  text-align: center;
+  margin-bottom: 0px;
+}
 
 /*------------Бутоны----------------*/
 
@@ -177,7 +182,7 @@
   border: none;
   border-radius: 12px;
   padding: 10px;
-  margin: 22px;
+  margin: 5px;
   cursor: pointer;
   transition: opacity .15s;
   box-shadow: 0 2px 4px rgba(0, 102, 204, 0.25);

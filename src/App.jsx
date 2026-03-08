@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import * as api from './api.js'
-import './app.css';
 import Sidebar from './sidebars/sidebar';
 import TableInfo from './table/tableInfo';
 
@@ -67,7 +66,7 @@ export default function App() {
 
                     {!infoLoading && tableInfo && (
                         <div className="info">
-                            <h2 className="header-title header-left">Информация о таблице</h2>
+                            <h2 className="header-title header-left">Информация о таблице:</h2>
                             <TableInfo tableInfo={tableInfo}/>
                         </div>
                     )}

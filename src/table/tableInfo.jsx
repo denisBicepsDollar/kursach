@@ -103,7 +103,7 @@ export default function TableInfo({ tableInfo }) {
         }
 
         try {
-            const res = await api.putreplaceRow(tableName, filterColumn, encodeURIComponent(String(filterValue)), payload);
+            const res = await api.putReplaceRow(tableName, filterColumn, encodeURIComponent(String(filterValue)), payload);
             const updated = (res && res.data && res.data[0]) ? res.data[0] : payload;
             setData(prev => prev.map(r => (r._localId === editingRow._localId ? { ...updated, _localId: r._localId } : r)));
             closeEdit();
@@ -189,234 +189,181 @@ export default function TableInfo({ tableInfo }) {
 
 
     return (
-        <div className="table-info">
-            <div className="table-info__meta">
-                <div className="table-header">
-                    <h3 className="table-header__title">{tableName}</h3>
-                </div>
-                <div className="table-header">
-                    <h3 className="table-header__subtitle">Колонки</h3>
-                        <div>
-                            <SidebarTable
-                                tableName={tableName}
-                                disabled={loading}
-                                onClickTable={() => { }}
-                                onActionComplete={async () => {
-                                    setReportsLoading(true);
-                                try {
-                                    await loadReports(tableName);
-                                } finally {
-                                    setReportsLoading(false);
-                                }
-                              }}
-                            />
-                        </div>
-                </div>
+        <>
+            <h2 className="header-title">{tableName}</h2>
 
-                <table className="meta-table">
-                    <thead>
-                    <tr>
-                        <th>Имя</th>
-                        <th>Тип</th>
-                        <th>Nullable</th>
-                        <th>По умолчанию</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {columns.map(col => (
-                        <tr key={col.column_name}>
-                            <td className="mono">{col.column_name}</td>
-                            <td>{col.data_type}</td>
-                            <td>{col.is_nullable === 'YES' ? 'Да' : 'Нет'}</td>
-                            <td className="mono">{col.column_default ?? '—'}</td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '12px 0' }}>
 
-            <div className="table-info__rows">
-                <h3 className="table-header__subtitle__sub">Данные</h3>
-                {data.length === 0 ? (
-                    <form.AddFormRow
-                        tableName={tableName}
-                        cols={columns.map(c => ({
-                            name: c.column_name,
-                            type: c.data_type,
-                            nullable: c.is_nullable === 'YES',
-                            default: c.column_default ?? ''
-                        }))}
-                        onCreate={handleCreate}
-                    />
-                ) : (
-                    <div className="rows-table-wrap">
-                        <table className="rows-table">
+                {/* ====== КОЛОНКИ ====== */}
+                <div className="body-content" style={{ gap: '0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: '10px', marginBottom: '12px' }}>
+                        <h3 className="body-content-title" style={{ padding: 0, margin: 0, background: 'none', border: 'none', textAlign: 'left' }}>
+                            Колонки
+                        </h3>
+                        <SidebarTable
+                            tableName={tableName}
+                            disabled={loading}
+                            onClickTable={() => {}}
+                            onActionComplete={async () => {
+                                setReportsLoading(true);
+                                try { await loadReports(tableName); }
+                                finally { setReportsLoading(false); }
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Monaco, monospace', fontSize: '14px' }}>
                             <thead>
-                            <tr>
-                                {columns.map(col => (
-                                    <th key={col.column_name}>{col.column_name}</th>
+                            <tr style={{ background: '#f3f4f6' }}>
+                                {['Имя', 'Тип', 'Nullable', 'По умолчанию'].map(h => (
+                                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', borderBottom: '2px solid rgba(0,0,0,0.1)', fontFamily: 'Helvetica Neue, Helvetica', fontSize: '13px', color: '#666', fontWeight: 600 }}>{h}</th>
                                 ))}
-                                <th>Действия</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {data.map(row => {
-                                const localId = row._localId;
-                                return (
-                                    <tr key={localId}>
-                                        {columns.map(col => (
-                                            <td key={col.column_name} className={col.data_type.includes('timestamp') ? 'mono small' : 'mono'}>
-                                                <div className="cell-content">
-                                                    {formatVal(row[col.column_name])}
-                                                </div>
-                                            </td>
-                                        ))}
-                                        <td>
-                                            <button
-                                                type="button"
-                                                onClick={() => openEdit(row)}
-                                                className="btn btn-warning"
-                                            >
-                                                Заменить
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleDelete(localId)}
-                                                className="btn btn-danger"
-                                            >
-                                                Удалить
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {columns.map((col, i) => (
+                                <tr key={col.column_name} style={{ background: i % 2 === 0 ? '#fff' : '#f9fafb' }}>
+                                    <td style={{ padding: '9px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', fontWeight: 600, color: '#0062ca' }}>{col.column_name}</td>
+                                    <td style={{ padding: '9px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', color: '#555' }}>{col.data_type}</td>
+                                    <td style={{ padding: '9px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                                        <span style={{ padding: '2px 8px', borderRadius: '99px', fontSize: '12px', background: col.is_nullable === 'YES' ? '#d1fae5' : '#ffe6ed', color: col.is_nullable === 'YES' ? '#047857' : '#d63855', fontWeight: 600 }}>
+                                            {col.is_nullable === 'YES' ? 'Да' : 'Нет'}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '9px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', color: '#777' }}>{col.column_default ?? '—'}</td>
+                                </tr>
+                            ))}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                {/* ====== ДАННЫЕ ====== */}
+                <div className="body-content" style={{ gap: '0' }}>
+                    <h3 className="body-content-title" style={{ marginBottom: '12px' }}>Данные</h3>
+
+                    {data.length === 0 ? (
                         <form.AddFormRow
                             tableName={tableName}
-                            cols={columns.map(c => ({
-                                name: c.column_name,
-                                type: c.data_type,
-                                nullable: c.is_nullable === 'YES',
-                                default: c.column_default ?? ''
-                            }))}
+                            cols={columns.map(c => ({ name: c.column_name, type: c.data_type, nullable: c.is_nullable === 'YES', default: c.column_default ?? '' }))}
                             onCreate={handleCreate}
                         />
-                    </div>
-                )}
-            </div>
-
-            <div className="table-info__reports">
-                <h3 className="table-header__subtitle__sub">Отчёты</h3>
-
-                {reportsLoading ? (
-                    <div>Загрузка...</div>
-                ) : (
-                    <table className="rows-table">
-                        <thead>
-                        <tr>
-                            <th>id</th>
-                            <th>Заголовок</th>
-                            <th>Статус</th>
-                            <th>Создан</th>
-                            <th>Действия</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {reports.length === 0 ? (
-                            <tr>
-                                <td colSpan={5}>Нет отчётов</td>
-                            </tr>
-                        ) : (
-                            reports.map(r => (
-                                <tr key={r.id ?? r.reportId}>
-                                    {/* Изменение 1: оборачиваем id */}
-                                    <td className="mono">
-                                        <div className="cell-content">
-                                            {r.id ?? r.reportId}
-                                        </div>
-                                    </td>
-
-                                    {/* Изменение 2: оборачиваем заголовок */}
-                                    <td>
-                                        <div className="cell-content">
-                                            {r.title ?? r.name ?? '—'}
-                                        </div>
-                                    </td>
-
-                                    {/* Изменение 3: оборачиваем статус */}
-                                    <td>
-                                        <div className="cell-content">
-                                            {r.status ?? r.state ?? '—'}
-                                        </div>
-                                    </td>
-
-                                    {/* Изменение 4: оборачиваем дату (самая частая проблема с длинными ISO-строками) */}
-                                    <td className="mono">
-                                        <div className="cell-content">
-                                            {r.createdAt ?? r.created_at ?? r.created ?? '—'}
-                                        </div>
-                                    </td>
-
-                                    <td className="row-actions">
-                                        <button
-                                            type="button"
-                                            className="btn-accent2"
-                                            onClick={() => downloadReport(r.id ?? r.reportId)}
-                                        >
-                                            Скачать
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn btn-outline btn-sm"
-                                            onClick={() => checkStatus(r.id ?? r.reportId)}
-                                        >
-                                            Статус
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn btn-danger btn-sm"
-                                            onClick={() => removeReport(r.id ?? r.reportId)}
-                                        >
-                                            Удалить
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                        </tbody>
-                    </table>
-                )}
-            </div>
-
-
-
-            {editingRow && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <h4>Редактировать строку</h4>
-                        <div>
-                            {columns.map(col => {
-                                const name = col.column_name;
-                                return (
-                                    <div key={name} style={{ marginBottom: 12 }}>
-                                        <label className="label">{name}</label>
-                                        <input
-                                            className="pole-put"
-                                            value={editingData[name] ?? ''}
-                                            onChange={e => setEditingData(prev => ({ ...prev, [name]: e.target.value }))}
-                                        />
-                                    </div>
-                                );
-                            })}
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: 'Monaco, monospace' }}>
+                                    <thead>
+                                    <tr style={{ background: '#f3f4f6' }}>
+                                        {columns.map(col => (
+                                            <th key={col.column_name} style={{ padding: '10px 14px', textAlign: 'left', borderBottom: '2px solid rgba(0,0,0,0.1)', fontFamily: 'Helvetica Neue', fontSize: '13px', color: '#666', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                                {col.column_name}
+                                            </th>
+                                        ))}
+                                        <th style={{ padding: '10px 14px', textAlign: 'left', borderBottom: '2px solid rgba(0,0,0,0.1)', fontFamily: 'Helvetica Neue', fontSize: '13px', color: '#666', fontWeight: 600 }}>Действия</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {data.map((row, i) => (
+                                        <tr key={row._localId} style={{ background: i % 2 === 0 ? '#fff' : '#f9fafb' }}>
+                                            {columns.map(col => (
+                                                <td key={col.column_name} style={{ padding: '8px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: col.data_type.includes('timestamp') ? '12px' : '13px', color: '#333' }}>
+                                                    {formatVal(row[col.column_name])}
+                                                </td>
+                                            ))}
+                                            <td style={{ padding: '8px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', whiteSpace: 'nowrap' }}>
+                                                <button type="button" onClick={() => openEdit(row)} className="btn-warning">Заменить</button>
+                                                <button type="button" onClick={() => handleDelete(row._localId)} className="btn-danger">Удалить</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <form.AddFormRow
+                                tableName={tableName}
+                                cols={columns.map(c => ({ name: c.column_name, type: c.data_type, nullable: c.is_nullable === 'YES', default: c.column_default ?? '' }))}
+                                onCreate={handleCreate}
+                            />
                         </div>
-                        <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button type="button" className="btn btn-danger btn-sm" onClick={closeEdit}>Отмена</button>
-                            <button type="button" className="btn btn-accent btn-sm" onClick={submitEdit}>Сохранить</button>
+                    )}
+                </div>
+
+                {/* ====== ОТЧЁТЫ ====== */}
+                <div className="body-content" style={{ gap: '0' }}>
+                    <h3 className="body-content-title" style={{ marginBottom: '12px' }}>Отчёты</h3>
+
+                    {reportsLoading ? (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#777', fontFamily: 'Helvetica Neue' }}>Загрузка...</div>
+                    ) : (
+                        <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                                <thead>
+                                <tr style={{ background: '#f3f4f6' }}>
+                                    {['ID', 'Заголовок', 'Статус', 'Создан', 'Действия'].map(h => (
+                                        <th key={h} style={{ padding: '10px 14px', textAlign: 'left', borderBottom: '2px solid rgba(0,0,0,0.1)', fontFamily: 'Helvetica Neue', fontSize: '13px', color: '#666', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
+                                    ))}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {reports.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#777', fontFamily: 'Helvetica Neue' }}>Нет отчётов</td>
+                                    </tr>
+                                ) : (
+                                    reports.map((r, i) => (
+                                        <tr key={r.id ?? r.reportId} style={{ background: i % 2 === 0 ? '#fff' : '#f9fafb' }}>
+                                            <td style={{ padding: '8px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', fontFamily: 'Monaco', color: '#0062ca', fontWeight: 600 }}>{r.id ?? r.reportId}</td>
+                                            <td style={{ padding: '8px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title ?? r.name ?? '—'}</td>
+                                            <td style={{ padding: '8px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                                                <span style={{
+                                                    padding: '2px 8px', borderRadius: '99px', fontSize: '12px', fontWeight: 600,
+                                                    background: r.status === 'done' || r.status === 'completed' ? '#d1fae5' : r.status === 'error' ? '#ffe6ed' : '#fef3c7',
+                                                    color: r.status === 'done' || r.status === 'completed' ? '#047857' : r.status === 'error' ? '#d63855' : '#d97706'
+                                                }}>
+                                                    {r.status ?? r.state ?? '—'}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '8px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', fontFamily: 'Monaco', fontSize: '12px', color: '#777' }}>{formatVal(r.createdAt ?? r.created_at ?? r.created ?? null)}</td>
+                                            <td style={{ padding: '8px 14px', borderBottom: '1px solid rgba(0,0,0,0.06)', whiteSpace: 'nowrap' }}>
+                                                <button type="button" className="btn-accent2" onClick={() => downloadReport(r.id ?? r.reportId)}>Скачать</button>
+                                                <button type="button" className="btn-outline" onClick={() => checkStatus(r.id ?? r.reportId)}>Статус</button>
+                                                <button type="button" className="btn-danger" onClick={() => removeReport(r.id ?? r.reportId)}>Удалить</button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* ====== МОДАЛКА РЕДАКТИРОВАНИЯ ====== */}
+            {editingRow && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', width: '480px', maxWidth: '90vw', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+                        <h4 style={{ margin: '0 0 20px', fontFamily: 'Helvetica Neue', fontSize: '18px', color: '#333' }}>Редактировать строку</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {columns.map(col => (
+                                <div key={col.column_name}>
+                                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: 600, color: '#666', fontFamily: 'Helvetica Neue' }}>{col.column_name}</label>
+                                    <input
+                                        style={{ width: '100%', padding: '8px 12px', border: '1px solid rgba(0,0,0,0.15)', borderRadius: '8px', fontSize: '14px', fontFamily: 'Monaco', background: '#fafafa', boxSizing: 'border-box' }}
+                                        value={editingData[col.column_name] ?? ''}
+                                        onChange={e => setEditingData(prev => ({ ...prev, [col.column_name]: e.target.value }))}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ marginTop: '20px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                            <button type="button" className="btn-danger" onClick={closeEdit}>Отмена</button>
+                            <button type="button" className="btn-accent" onClick={submitEdit}>Сохранить</button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 }

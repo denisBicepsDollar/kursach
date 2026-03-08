@@ -276,7 +276,7 @@ export function AddFormReport({ tableName = '', disabled = false, onCreate }) {
                         <div className="af__header">
                             <div className="af__header-left">
                                 <span className="af__header-title">Новый отчёт</span>
-                                <span className="af__header-table">{tableName}</span>
+                                <span className="af__header-table-title">{tableName}</span>
                             </div>
                         </div>
 
@@ -369,7 +369,7 @@ export function AddFormReport({ tableName = '', disabled = false, onCreate }) {
                             <Section title="Агрегации" badge={aggregates.length} defaultOpen={false}>
                                 {aggregates.map(a => (
                                     <div key={a.id} className="af__row af__row--wrap">
-                                        <select className="af__input af__input--xs" value={a.fn} onChange={e => updateAggregate(a.id, 'fn', e.target.value)} disabled={loading}>
+                                        <select className="af__input" value={a.fn} onChange={e => updateAggregate(a.id, 'fn', e.target.value)} disabled={loading}>
                                             {AGGREGATE_FNS.map(fn => <option key={fn} value={fn}>{fn}</option>)}
                                         </select>
                                         <select className="af__input af__input--sm" value={a.col} onChange={e => updateAggregate(a.id, 'col', e.target.value)} disabled={loading}>
@@ -456,7 +456,7 @@ export function AddFormReport({ tableName = '', disabled = false, onCreate }) {
                                                 </select>
                                             )}
                                             {meta.needsN && (
-                                                <input className="af__input af__input--xs" placeholder="n" value={w.n} onChange={e => updateWinFn(w.id, 'n', e.target.value)} disabled={loading} />
+                                                <input className="af__input" placeholder="n" value={w.n} onChange={e => updateWinFn(w.id, 'n', e.target.value)} disabled={loading} />
                                             )}
                                             <input className="af__input af__input--sm" placeholder="AS псевдоним" value={w.alias} onChange={e => updateWinFn(w.id, 'alias', e.target.value)} disabled={loading} />
                                             <button type="button" className="af__icon-btn af__icon-btn--del" onClick={() => removeWinFn(w.id)}>✕</button>
