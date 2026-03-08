@@ -1,0 +1,11 @@
+{"level":30,"time":1772991229326,"pid":509022,"hostname":"denisbiceps","msg":"База данных defaultDb подключена"}
+{"level":30,"time":1772991229327,"pid":509022,"hostname":"denisbiceps","msg":"База данных для состовления отчётов подключена"}
+{"level":30,"time":1772991229327,"pid":509022,"hostname":"denisbiceps","msg":"Инициализация сервера"}
+{"level":20,"time":1772991229328,"pid":509022,"hostname":"denisbiceps","msg":"конфиг и приложение успешно инициализированы"}
+{"level":20,"time":1772991229329,"pid":509022,"hostname":"denisbiceps","msg":"инициализация middleware"}
+{"level":20,"time":1772991229330,"pid":509022,"hostname":"denisbiceps","msg":"инициализация routes"}
+{"level":20,"time":1772991229331,"pid":509022,"hostname":"denisbiceps","msg":"инициализация порта и listen"}
+{"level":30,"time":1772991229334,"pid":509022,"hostname":"denisbiceps","msg":"Server started on port 3000"}
+{"level":30,"time":1772991238010,"pid":509045,"hostname":"denisbiceps","msg":"База данных для состовления отчётов подключена"}
+{"level":30,"time":1772991238011,"pid":509045,"hostname":"denisbiceps","msg":"База данных defaultDb подключена"}
+{"level":30,"time":1772991238011,"pid":509045,"hostname":"denisbiceps","msg":"Воркер запущен"}
