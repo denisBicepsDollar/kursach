@@ -1,23 +1,39 @@
-/* index.css — глобальные стили */
+/* ============================================================================
+   INDEX.CSS — ГЛОБАЛЬНЫЕ СТИЛИ И ПЕРЕМЕННЫЕ
+   ============================================================================ */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CSS ПЕРЕМЕННЫЕ (ДИЗАЙН-СИСТЕМА)
+   ───────────────────────────────────────────────────────────────────────── */
 :root {
+  /* Основные цвета */
   --af-bg:       #ffffff;
   --af-surface:  #f5f5f5;
   --af-border:   rgba(0, 0, 0, 0.12);
   --af-border2:  rgba(0, 0, 0, 0.08);
+
+  /* Акцентные цвета */
   --af-accent:   #0062ca;
   --af-accent2:  #2ecc71;
   --af-danger:   #ff4f6e;
+
+  /* Текст */
   --af-text:     #333333;
   --af-muted:    #777777;
   --af-label:    #666666;
+
+  /* Компоненты */
   --af-input-bg: #fafafa;
   --af-r:        12px;
+
+  /* Типография */
   --af-font-size-header: 32px;
   --af-font-size-body: 16px;
   --af-font-size-etc: 18px;
   --af-font:     'Monaco';
   --af-font2:    'Helvetica Neue', 'Helvetica';
 
+  /* Цветовые вариации */
   --af-accent-light:  #e6f2ff;
   --af-accent-dark:   #0047a3;
   --af-accent2-light: #e8f8f0;
@@ -25,6 +41,7 @@
   --af-danger-light:  #ffe6ed;
   --af-danger-dark:   #d63855;
 
+  /* Семантические цвета */
   --af-success:       #10b981;
   --af-success-light: #d1fae5;
   --af-success-dark:  #047857;
@@ -37,6 +54,7 @@
   --af-info-light:    #dbeafe;
   --af-info-dark:     #1d4ed8;
 
+  /* Оттенки серого */
   --af-gray-50:       #f9fafb;
   --af-gray-100:      #f3f4f6;
   --af-gray-200:      #e5e7eb;
@@ -44,10 +62,15 @@
   --af-gray-400:      #9ca3af;
   --af-gray-500:      #6b7280;
 
+  /* Эффекты */
   --af-overlay:       rgba(0, 0, 0, 0.5);
   --af-shadow:        0 1px 3px rgba(0, 0, 0, 0.1);
 }
-/*-------App---------------*/
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ОБЩАЯ СТРУКТУРА ПРИЛОЖЕНИЯ
+   ───────────────────────────────────────────────────────────────────────── */
+
 .app {
   display: grid;
   grid-template-columns: 1fr;
@@ -55,10 +78,25 @@
   min-height: 100vh;
   background-color: var(--af-bg);
 }
-.all-Content{
+
+.all-Content {
   display: grid;
   grid-template-columns: 250px 1fr;
   gap: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ЗАГОЛОВОК / ШАПКА
+   ───────────────────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--af-border);
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--af-gray-100) 0%, var(--af-gray-200) 100%);
 }
 
 .header h1 {
@@ -67,30 +105,53 @@
   color: var(--af-text);
   font-family: var(--af-font2);
 }
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon {
+  font-size: 18px;
+  color: var(--af-accent);
+}
+
+.header-title {
+  font-family: var(--af-font2);
+  font-size: var(--af-font-size-header);
+  color: var(--af-text);
+  letter-spacing: 0.02em;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   БОКОВАЯ ПАНЕЛЬ (SIDEBAR)
+   ───────────────────────────────────────────────────────────────────────── */
+
 .sidebar {
   background-color: var(--af-surface);
-  border-right: 1px var(--af-border);
+  border-right: 1px solid var(--af-border);
   padding: 15.5px;
   overflow-y: auto;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   ОСНОВНОЙ КОНТЕНТ
+   ───────────────────────────────────────────────────────────────────────── */
 
-/* КОНТЕНТ СПРАВА */
 .main-content {
   padding: 24px;
   overflow-y: auto;
   max-height: calc(100vh - 60px);
 }
 
-
 .info {
   background-color: var(--af-bg);
   border: 1px solid var(--af-border);
   border-radius: var(--af-r);
   padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--af-shadow);
 }
-
 
 .muted {
   color: var(--af-muted);
@@ -100,43 +161,25 @@
   padding: 13px;
 }
 
-
-
-/*-----------------Шапка----------------*/
-.header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--af-border);
-  flex-shrink: 0;
-  background: linear-gradient(180deg, var(--af-gray-100) 0%, var(--af-gray-200) 100%);
-}
-
-
-.header-left { display: flex; align-items: center; gap: 10px; }
-
-
-.header-icon { font-size: 18px; color: var(--af-accent); }
-
-
-.header-title {
-  font-family: var(--af-font2); font-size: var(--af-font-size-header);
-  color: var(--af-text); letter-spacing: .02em;
-}
-
-/*-----------------Тело----------------*/
+/* ─────────────────────────────────────────────────────────────────────────
+   КОНТЕЙНЕР ТЕЛА (BODY)
+   ───────────────────────────────────────────────────────────────────────── */
 
 .body {
   border: 1px solid var(--af-border);
   background-color: var(--af-bg);
   border-radius: var(--af-r);
   overflow: hidden;
-
 }
+
+/* Список содержимого внутри body */
 .body-list-content {
   padding: 12px 14px;
   border-top: 1px solid var(--af-border);
   border-bottom: 1px solid var(--af-border);
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   background: var(--af-gray-50);
   list-style: none;
 }
@@ -147,8 +190,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.body-content {
 
+/* Основной контент body */
+.body-content {
   font-family: var(--af-font);
   font-size: 18px;
   color: var(--af-text);
@@ -160,22 +204,26 @@
   flex-direction: column;
   gap: 12px;
 }
+
+/* Заголовок контента body */
 .body-content-title {
   background: linear-gradient(180deg, var(--af-surface) 80%, var(--af-gray-200) 100%);
   border-bottom: 1px solid var(--af-border2);
   padding: 10px 14px;
   text-align: center;
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
-/*------------Бутоны----------------*/
+/* ─────────────────────────────────────────────────────────────────────────
+   КНОПКИ
+   ───────────────────────────────────────────────────────────────────────── */
 
-/*Бутон на создание чего то*/
+/* Основная кнопка (создание, добавление) */
 .btn-accent {
   font-family: var(--af-font2);
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   background: linear-gradient(180deg, var(--af-accent) 0%, #0052a3 100%);
   color: #fff;
@@ -184,17 +232,25 @@
   padding: 10px;
   margin: 5px;
   cursor: pointer;
-  transition: opacity .15s;
+  transition: opacity 0.15s;
   box-shadow: 0 2px 4px rgba(0, 102, 204, 0.25);
 }
-.btn-accent:hover { opacity: .85; }
-.btn-accent:disabled { opacity: .35; cursor: not-allowed; }
-/*Бутон на удаление чего то*/
+
+.btn-accent:hover {
+  opacity: 0.85;
+}
+
+.btn-accent:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Кнопка опасного действия (удаление) */
 .btn-danger {
   font-family: var(--af-font2);
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   background: linear-gradient(180deg, var(--af-danger) 0%, var(--af-danger-dark) 100%);
   color: #fff;
@@ -203,20 +259,25 @@
   padding: 10px;
   margin: 5px;
   cursor: pointer;
-  transition: opacity .15s;
+  transition: opacity 0.15s;
   box-shadow: 0 2px 4px rgba(0, 102, 204, 0.25);
 }
-.btn-danger:hover { opacity: .85; }
-.btn-danger:disabled { opacity: .35; cursor: not-allowed; }
 
-.btn-accent:hover { opacity: .85; }
-.btn-accent:disabled { opacity: .35; cursor: not-allowed; }
-/*Бутон на скачивание*/
+.btn-danger:hover {
+  opacity: 0.85;
+}
+
+.btn-danger:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Кнопка успеха (скачивание, экспорт) */
 .btn-accent2 {
   font-family: var(--af-font2);
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   background: linear-gradient(180deg, var(--af-accent2) 0%, var(--af-accent2-dark) 100%);
   color: #fff;
@@ -225,17 +286,25 @@
   padding: 10px;
   margin: 5px;
   cursor: pointer;
-  transition: opacity .15s;
+  transition: opacity 0.15s;
   box-shadow: 0 2px 4px rgba(0, 102, 204, 0.25);
 }
-.btn-accent2:hover { opacity: .85; }
-.btn-accent2:disabled { opacity: .35; cursor: not-allowed; }
-/*Бутон etc*/
+
+.btn-accent2:hover {
+  opacity: 0.85;
+}
+
+.btn-accent2:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Информационная кнопка (доп. действия) */
 .btn-outline {
   font-family: var(--af-font2);
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   background: linear-gradient(180deg, var(--af-info) 0%, var(--af-info-dark) 100%);
   color: #fff;
@@ -244,17 +313,25 @@
   padding: 10px;
   margin: 5px;
   cursor: pointer;
-  transition: opacity .15s;
+  transition: opacity 0.15s;
   box-shadow: 0 2px 4px rgba(0, 102, 204, 0.25);
 }
-.btn-outline:hover { opacity: .85; }
-.btn-outline:disabled { opacity: .35; cursor: not-allowed; }
-/*Бутон осторожно типо заменить что то надо*/
+
+.btn-outline:hover {
+  opacity: 0.85;
+}
+
+.btn-outline:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Кнопка предупреждения (осторожно, замена) */
 .btn-warning {
   font-family: var(--af-font2);
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   background: linear-gradient(180deg, var(--af-warning) 0%, var(--af-warning-dark) 100%);
   color: #fff;
@@ -263,11 +340,15 @@
   padding: 10px;
   margin: 5px;
   cursor: pointer;
-  transition: opacity .15s;
+  transition: opacity 0.15s;
   box-shadow: 0 2px 4px rgba(0, 102, 204, 0.25);
 }
-.btn-warning:hover { opacity: .85; }
-.btn-warning:disabled { opacity: .35; cursor: not-allowed; }
 
+.btn-warning:hover {
+  opacity: 0.85;
+}
 
-
+.btn-warning:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

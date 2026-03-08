@@ -142,6 +142,7 @@ export function AddFormReport({ tableName = '', disabled = false, onCreate }) {
     const [loading, setLoading] = useState(false);
     const [error, setError]     = useState(null);
     const [columns, setColumns] = useState([]);
+    const [columnMeta, setColumnMeta] = useState({});
 
     // ── Форма ──
     const [title, setTitle]               = useState('');
@@ -167,18 +168,30 @@ export function AddFormReport({ tableName = '', disabled = false, onCreate }) {
         if (!tableName) return;
         try {
             const resp = await api.getTable(tableName);
-            const list = Array.isArray(resp)
-                ? resp
-                : Array.isArray(resp?.columns)    ? resp.columns
+            const list = Array.isArray(resp) ? resp
+                : Array.isArray(resp?.columns)       ? resp.columns
                     : Array.isArray(resp?.data?.columns) ? resp.data.columns
                         : [];
+
             const cols = list
                 .map(c => typeof c === 'string' ? c : (c.column_name ?? c.name ?? ''))
                 .map(s => s.toString().trim())
                 .filter(Boolean);
+
+            // тип колонки если бэк отдаёт
+            const meta = {};
+            list.forEach(c => {
+                if (typeof c === 'object') {
+                    const name = (c.column_name ?? c.name ?? '').trim();
+                    if (name) meta[name] = (c.data_type ?? '').toLowerCase();
+                }
+            });
+
             setColumns(cols);
+            setColumnMeta(meta);
         } catch {
             setColumns([]);
+            setColumnMeta({});
         }
     }, [tableName]);
 
@@ -221,6 +234,36 @@ export function AddFormReport({ tableName = '', disabled = false, onCreate }) {
     const removeFilter = id  => setFilters(f => f.filter(x => x.id !== id));
     const updateFilter = (id, field, val) =>
         setFilters(f => f.map(x => x.id === id ? { ...x, [field]: val } : x));
+
+    // ─── Helper ───────────────────────────────────────────────────────────
+
+    const getValueInput = (f) => {
+        if (noValueOperators.has(f.op)) return null;
+
+        if (f.op === 'BETWEEN') return (
+            <>
+                <input className="af__input af__input--sm" placeholder="от"
+                       value={f.value} onChange={e => updateFilter(f.id, 'value', e.target.value)} />
+                <span className="af__row-sep">и</span>
+                <input className="af__input af__input--sm" placeholder="до"
+                       value={f.value2} onChange={e => updateFilter(f.id, 'value2', e.target.value)} />
+            </>
+        );
+
+        if (columnMeta[f.col]?.includes('bool')) return (
+            <select className="af__input af__input--sm" value={f.value}
+                    onChange={e => updateFilter(f.id, 'value', e.target.value)}>
+                <option value="">--</option>
+                <option value="true">true ✓</option>
+                <option value="false">false ✗</option>
+            </select>
+        );
+
+        return (
+            <input className="af__input af__input--sm" placeholder="значение"
+                   value={f.value} onChange={e => updateFilter(f.id, 'value', e.target.value)} />
+        );
+    };
 
     // ─── Aggregates ────────────────────────────────────────────────
     const addAggregate    = () => setAggregates(a => [...a, { id: uid(), fn: 'COUNT', col: '', distinct: false, alias: '' }]);
@@ -336,30 +379,19 @@ export function AddFormReport({ tableName = '', disabled = false, onCreate }) {
                             <Section title="WHERE — фильтры" badge={filters.length} defaultOpen={true}>
                                 {filters.map(f => (
                                     <div key={f.id} className="af__row af__row--wrap">
-                                        <select className="af__input af__input--sm" value={f.col} onChange={e => updateFilter(f.id, 'col', e.target.value)} disabled={loading}>
+                                        <select className="af__input af__input--sm" value={f.col}
+                                                onChange={e => updateFilter(f.id, 'col', e.target.value)} disabled={loading}>
                                             {columns.map(col => <option key={col} value={col}>{col}</option>)}
                                         </select>
-                                        <select className="af__input af__input--md" value={f.op} onChange={e => updateFilter(f.id, 'op', e.target.value)} disabled={loading}>
+                                        <select className="af__input af__input--md" value={f.op}
+                                                onChange={e => updateFilter(f.id, 'op', e.target.value)} disabled={loading}>
                                             {WHERE_OPERATORS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                                         </select>
-                                        {!noValueOperators.has(f.op) && (
-                                            <>
-                                                <input
-                                                    className="af__input af__input--sm"
-                                                    placeholder={f.op === 'IN' || f.op === 'NOT IN' ? 'val1, val2, ...' : f.op === 'BETWEEN' ? 'от' : 'значение'}
-                                                    value={f.value}
-                                                    onChange={e => updateFilter(f.id, 'value', e.target.value)}
-                                                    disabled={loading}
-                                                />
-                                                {f.op === 'BETWEEN' && (
-                                                    <>
-                                                        <span className="af__row-sep">и</span>
-                                                        <input className="af__input af__input--sm" placeholder="до" value={f.value2} onChange={e => updateFilter(f.id, 'value2', e.target.value)} disabled={loading} />
-                                                    </>
-                                                )}
-                                            </>
-                                        )}
-                                        <button type="button" className="af__icon-btn af__icon-btn--del" onClick={() => removeFilter(f.id)}>✕</button>
+
+                                        {getValueInput(f)}  {/* ← вот сюда */}
+
+                                        <button type="button" className="af__icon-btn af__icon-btn--del"
+                                                onClick={() => removeFilter(f.id)}>✕</button>
                                     </div>
                                 ))}
                                 <button type="button" className="af__add-btn" onClick={addFilter} disabled={loading || !columns.length}>+ Добавить условие</button>
