@@ -111,17 +111,6 @@ export async function getTable(tableName) {
    ───────────────────────────────────────────────────────────────────────── */
 
 /**
- * Получить список строк таблицы
- * GET /tables/:tableName/rows
- *
- * @param {string} tableName - Название таблицы
- */
-export async function getListRows(tableName) {
-    const res = await fetch(`${BASE}/tables/${encodeURIComponent(tableName)}/rows`);
-    return handleResponse(res);
-}
-
-/**
  * Создать новую строку в таблице
  * POST /tables/:tableName/rows
  *
