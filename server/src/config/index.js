@@ -1,24 +1,27 @@
+// ── config/index.js ───────────────────────────────────────────────────────────
+// Читает config.json и экспортирует плоский объект с настройками приложения.
+// Все параметры подключения к БД берутся отсюда — не хардкодятся в клиентах.
+
 import fs from 'fs';
 import path from 'path';
-import {fileURLToPath} from "url";
+import { fileURLToPath } from 'url';
 
-console.log('Инициализация конфига')
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const configPath = path.resolve(__dirname,'config.json');
-
-console.log('ConfigPath = ', configPath);
-const raw = fs.readFileSync(configPath, 'utf8');
-
-const fileConfig = JSON.parse(raw);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const raw       = fs.readFileSync(path.resolve(__dirname, 'config.json'), 'utf8');
+const file      = JSON.parse(raw);
 
 const config = {
-    port : fileConfig?.main?.port,
-    logLevel: fileConfig?.main?.logLevel.toLowerCase(),
+    port:            file.main.port,
+    logLevel:        file.main.logLevel.toLowerCase(),
+    db: {
+        host:            file.db.host,
+        port:            file.db.port,
+        user:            file.db.user,
+        password:        file.db.password,
+        defaultDatabase: file.db.defaultDatabase,
+        reportsDatabase: file.db.reportsDatabase,
+    },
 };
-console.log('port and logLevel = ', config.port, config.logLevel )
 
-console.log('Конфиг успех')
-
+console.log(`[config] port=${config.port} logLevel=${config.logLevel} db.host=${config.db.host}`);
 export default config;

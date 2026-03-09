@@ -1,7 +1,14 @@
 {
-  "main":
-        {
-          "port": 3000,
-          "logLevel": "DEBUG"
-        }
+  "main": {
+    "port": 3000,
+    "logLevel": "DEBUG"
+  },
+  "db": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "denisbiceps",
+    "password": "12345678",
+    "defaultDatabase": "defaultDb",
+    "reportsDatabase": "reports"
+  }
 }

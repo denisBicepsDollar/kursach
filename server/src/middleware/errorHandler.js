@@ -1,9 +1,10 @@
-import logger from '../utils/logger.js';
+// ── errorHandler.js ───────────────────────────────────────────────────────────
+// Глобальный обработчик ошибок Express (4 аргумента — обязательно).
+// Должен регистрироваться ПОСЛЕДНИМ после всех роутов в server.js,
+// иначе не будет перехватывать ошибки переданные через next(err).
 
 export default function errorHandler(err, req, res, next) {
-    logger.error(err, req, res);
-
+    console.error('[errorHandler]', err);
     const status = err.status || 500;
-    const payload = err.message;
-    res.status(status).send(payload);
+    res.status(status).send(err.message);
 }

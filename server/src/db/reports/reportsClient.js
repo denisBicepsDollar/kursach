@@ -1,14 +1,22 @@
-import pkg from 'pg'
-import logger from '../../utils/logger.js'
-const {Client : ReportsClient} = pkg;
+// ── reportsClient.js ──────────────────────────────────────────────────────────
+// Пул соединений к БД отчётов (reports).
+// Отдельная БД используется чтобы изолировать таблицу reports от основных данных.
+// Структура идентична defaultClient — отличается только database.
 
-const reportsClient = new ReportsClient({
-    host: 'localhost',
-    port: 5432,
-    user: 'denisbiceps',
-    password: '12345678',
-    database: 'reports'
-})
-await reportsClient.connect();
-logger.info('База данных для состовления отчётов подключена');
-export default reportsClient;
+import pkg from 'pg';
+import config from '../../config/index.js';
+
+const { Pool } = pkg;
+
+const pool = new Pool({
+    host:     config.db.host,
+    port:     config.db.port,
+    user:     config.db.user,
+    password: config.db.password,
+    database: config.db.reportsDatabase,
+});
+
+pool.on('connect', () => console.log(`[reportsClient] connected to "${config.db.reportsDatabase}"`));
+pool.on('error',   (err) => console.error('[reportsClient] pool error:', err));
+
+export default pool;

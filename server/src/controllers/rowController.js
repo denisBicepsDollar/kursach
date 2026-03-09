@@ -1,82 +1,84 @@
-import * as service from '../services/Common/rowService.js';
-import logger from '../utils/logger.js';
-import safeStringify from "fast-safe-stringify";
+import * as rowService from '../services/Common/rowService.js';
+import safeStringify from 'fast-safe-stringify';
 
-export async function list(req,res) {
+// GET /tables/:tableName/rows и GET /tables/:tableName
+// Возвращает метаданные колонок и строки таблицы: { data: { columns, data } }
+export async function list(req, res) {
     try {
-        const {tableName} = req.params;
-        logger.debug(`Выполняется list, table = ${tableName}`);
+        const { tableName } = req.params;
+        console.log(`[rowController] list table="${tableName}"`);
 
-        const rows = await service.getRows(tableName);
-
-        return res.status(202).json({data:rows});
-    }
-    catch(err){
-        logger.error(`Ошибка при загрузке строк ${err}`);
-        return res.status(500).json(`Ошибка при загрузке строк ${err}`);
+        const rows = await rowService.getRows(tableName);
+        return res.status(200).json({ data: rows });
+    } catch (err) {
+        console.error(`[rowController] list error:`, err);
+        return res.status(500).json(`Ошибка при загрузке строк: ${err}`);
     }
 }
+
+// GET /tables/:tableName/rows/:rowId
+// Возвращает одну строку по id: { data: row }
+// Если строка не найдена — 404.
 export async function get(req, res) {
     try {
         const { tableName, rowId } = req.params;
-        logger.debug(
-            `Выполняется get, table = ${tableName}, rowId = ${rowId}`
-        );
+        console.log(`[rowController] get table="${tableName}" rowId=${rowId}`);
 
-        // формируем простейший фильтр‑строку
-        const filter = `id = ${rowId}`;   // без кавычек, т.к. id – числовой
-
-        const row = await service.getRow(tableName, filter);
-        if (!row) {
-            return res.status(404).json({ err: 'Строка не найдена' });
-        }
-
-        return res.status(200).json({ data: row });
+        const rows = await rowService.getRow(tableName, { where: { id: { op: '=', value: rowId } } });
+        if (!rows.length) return res.status(404).json({ error: 'Строка не найдена' });
+        return res.status(200).json({ data: rows[0] });
     } catch (err) {
-        logger.error(`Ошибка при получении строки ${err}`);
-        return res.status(500).json(`Ошибка при получении строки ${err}`);
+        console.error(`[rowController] get error:`, err);
+        return res.status(500).json(`Ошибка при получении строки: ${err}`);
     }
 }
 
-export async function create(req,res){
+// POST /tables/:tableName/rows
+// Создаёт новую строку. Тело запроса — объект с полями строки.
+// Возвращает созданную строку: { data: row }
+export async function create(req, res) {
     try {
-        const {tableName} = req.params;
+        const { tableName } = req.params;
         const data = req.body;
-        logger.debug(`Выполняется create, table = ${tableName}, data=${safeStringify(data)}`);
+        console.log(`[rowController] create table="${tableName}"`, safeStringify(data));
 
-        const row = await service.createRow(tableName, data);
-
-        return res.json({data:row});
-    }
-    catch (err) {
-        logger.error(`Ошибка при создании строки ${err}`);
-        return res.status(500).json(`Ошибка при создании строки ${err}`);
+        const rows = await rowService.createRow(tableName, data);
+        return res.status(200).json({ data: rows });
+    } catch (err) {
+        console.error(`[rowController] create error:`, err);
+        return res.status(500).json(`Ошибка при создании строки: ${err}`);
     }
 }
 
+// PUT /tables/:tableName/rows/:filterColumn/:filterValue
+// Обновляет строку по значению указанной колонки. Тело запроса — новые значения полей.
+// Возвращает обновлённую строку: { data: row }
 export async function replace(req, res) {
     try {
         const { tableName, filterColumn, filterValue } = req.params;
         const data = req.body;
-        logger.debug(`Выполняется replace, table=${tableName}, filterColumn=${filterColumn}, filterValue=${safeStringify(filterValue)}, data=${safeStringify(data)}`);
+        console.log(`[rowController] replace table="${tableName}" where ${filterColumn}=${filterValue}`, safeStringify(data));
 
-        const row = await service.replaceRow(tableName, data, filterValue, filterColumn);
-        return res.json({ data: row });
+        const rows = await rowService.replaceRow(tableName, data, filterValue, filterColumn);
+        return res.status(200).json({ data: rows });
     } catch (err) {
-        logger.error(`Ошибка при обновлении строки ${err}`);
-        return res.status(500).json(`Ошибка при обновлении строки ${err}`);
+        console.error(`[rowController] replace error:`, err);
+        return res.status(500).json(`Ошибка при обновлении строки: ${err}`);
     }
 }
 
+// DELETE /tables/:tableName/rows/:filterColumn/:filterValue
+// Удаляет строку по значению указанной колонки.
+// Возвращает удалённую строку: { data: row }
 export async function remove(req, res) {
     try {
         const { tableName, filterColumn, filterValue } = req.params;
-        logger.debug(`Выполняется remove, table=${tableName}, filterColumn=${filterColumn}, filterValue=${safeStringify(filterValue)}`);
+        console.log(`[rowController] remove table="${tableName}" where ${filterColumn}=${filterValue}`);
 
-        const row = await service.removeRow(tableName, filterValue, filterColumn);
-        return res.json({ data: row });
+        const rows = await rowService.removeRow(tableName, filterValue, filterColumn);
+        return res.status(200).json({ data: rows });
     } catch (err) {
-        logger.error(`Ошибка при удалении строки: ${err}`);
+        console.error(`[rowController] remove error:`, err);
         return res.status(500).json(`Ошибка при удалении строки: ${err}`);
     }
 }

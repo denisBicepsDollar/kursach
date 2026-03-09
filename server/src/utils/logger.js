@@ -1,27 +1,30 @@
+// ── logger.js ─────────────────────────────────────────────────────────────────
+// Простой логгер: дублирует вывод в терминал и в файл app.log рядом с собой.
+// Формат строки: [ISO-timestamp] [LEVEL] message
+// Запись в файл асинхронная (флаг 'a' — дозапись, не перезапись).
+
+import fs from 'fs';
 import path from 'path';
-import config from "../config/index.js"
-import pino from "pino";
-import {fileURLToPath} from "url";
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const LOG_FILE  = path.join(__dirname, 'app.log');
+const stream    = fs.createWriteStream(LOG_FILE, { flags: 'a' });
 
-console.log('Инициализация логгера')
-
-function initLogger() {
-
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-
-    const fileDest = pino.destination({
-        dest: path.join(__dirname, 'app.log'),
-        sync: false});
-
-
-
-    const logger = pino(
-        {level: config.logLevel}, fileDest
-    );
-    console.log('Логгер успех');
-    return logger;
+// Формирует строку лога и пишет её в файл. Возвращает строку для console.
+function write(level, args) {
+    const prefix = `[${new Date().toISOString()}] [${level}]`;
+    const line   = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+    const full   = `${prefix} ${line}`;
+    stream.write(full + '\n');
+    return full;
 }
-const logger = initLogger();
-export default logger;
+
+const log = {
+    info:  (...args) => console.log(write('INFO',  args)),
+    debug: (...args) => console.log(write('DEBUG', args)),
+    warn:  (...args) => console.warn(write('WARN',  args)),
+    error: (...args) => console.error(write('ERROR', args)),
+};
+
+export default log;
